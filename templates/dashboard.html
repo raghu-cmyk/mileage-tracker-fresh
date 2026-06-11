@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Dashboard</h1>
+  <a href="{{ url_for('trip_form') }}" class="btn btn-primary">Log Trip</a>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="label">Business Miles ({{ year }})</div>
+    <div class="value success">{{ "%.1f"|format(stats.business_miles) }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Total Miles ({{ year }})</div>
+    <div class="value">{{ "%.1f"|format(stats.total_miles) }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Trips ({{ year }})</div>
+    <div class="value">{{ stats.trip_count }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Est. Deduction ({{ year }})</div>
+    <div class="value">${{ "%.2f"|format(estimated_deduction) }}</div>
+    <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">@ ${{ "%.3f"|format(rate) }}/mi IRS rate</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Recent Trips</h2>
+  {% if recent %}
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Vehicle</th>
+        <th>Miles</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for trip in recent %}
+      <tr>
+        <td>{{ trip.trip_date }}</td>
+        <td>{{ trip.vehicle_label }}</td>
+        <td class="mono">{{ "%.1f"|format(trip.distance_miles) }}</td>
+        <td><span class="badge badge-{{ trip.purpose }}">{{ trip.purpose|capitalize }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <h3>No trips yet</h3>
+    <p>Log your first business trip to start tracking deductible mileage.</p>
+    {% if vehicle_count == 0 %}
+    <a href="{{ url_for('vehicle_form') }}" class="btn btn-primary">Add Your First Vehicle</a>
+    {% else %}
+    <a href="{{ url_for('trip_form') }}" class="btn btn-primary">Log Your First Trip</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

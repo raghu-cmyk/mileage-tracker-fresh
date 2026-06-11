@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Vehicles{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Vehicles</h1>
+  <a href="{{ url_for('vehicle_form') }}" class="btn btn-primary">Add Vehicle</a>
+</div>
+
+<div class="card">
+  {% if vehicles %}
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Details</th>
+        <th>Status</th>
+        <th>Trips</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for v in vehicles %}
+      <tr>
+        <td>
+          <strong>{{ v.label }}</strong>
+          {% if v.is_default %}<span class="badge badge-business" style="margin-left:8px">Default</span>{% endif %}
+        </td>
+        <td>
+          {% if v.year or v.make or v.model %}
+            {{ v.year or '' }} {{ v.make or '' }} {{ v.model or '' }}
+          {% else %}—{% endif %}
+          {% if v.license_plate %}<br><span class="mono" style="font-size:12px;color:var(--text-secondary)">{{ v.license_plate }}</span>{% endif %}
+        </td>
+        <td>
+          {% if v.is_active %}
+          <span class="badge badge-business">Active</span>
+          {% else %}
+          <span class="badge badge-inactive">Archived</span>
+          {% endif %}
+        </td>
+        <td>{{ v.trip_count }}</td>
+        <td><a href="{{ url_for('vehicle_form', vehicle_id=v.id) }}">Edit</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <h3>No vehicles yet</h3>
+    <p>Add a vehicle before you can log trips.</p>
+    <a href="{{ url_for('vehicle_form') }}" class="btn btn-primary">Add Your First Vehicle</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

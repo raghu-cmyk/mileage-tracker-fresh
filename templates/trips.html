@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Trips{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Trips</h1>
+  <a href="{{ url_for('trip_form') }}" class="btn btn-primary">Log Trip</a>
+</div>
+
+<div class="stats-grid" style="margin-bottom:24px">
+  <div class="stat-card">
+    <div class="label">Total Miles</div>
+    <div class="value">{{ "%.1f"|format(totals.total) }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Business Miles</div>
+    <div class="value success">{{ "%.1f"|format(totals.business) }}</div>
+  </div>
+</div>
+
+<form class="filters no-print" method="get" action="{{ url_for('trips_list') }}">
+  <select name="purpose" class="form-control" aria-label="Filter by purpose">
+    <option value="">All purposes</option>
+    <option value="business" {% if purpose_filter == 'business' %}selected{% endif %}>Business</option>
+    <option value="personal" {% if purpose_filter == 'personal' %}selected{% endif %}>Personal</option>
+  </select>
+  <select name="vehicle" class="form-control" aria-label="Filter by vehicle">
+    <option value="">All vehicles</option>
+    {% for v in vehicles %}
+    <option value="{{ v.id }}" {% if vehicle_filter == v.id|string %}selected{% endif %}>{{ v.label }}</option>
+    {% endfor %}
+  </select>
+  <select name="sort" class="form-control" aria-label="Sort order">
+    <option value="date_desc" {% if sort == 'date_desc' %}selected{% endif %}>Newest first</option>
+    <option value="date_asc" {% if sort == 'date_asc' %}selected{% endif %}>Oldest first</option>
+    <option value="miles_desc" {% if sort == 'miles_desc' %}selected{% endif %}>Most miles</option>
+  </select>
+  <button type="submit" class="btn btn-secondary">Apply</button>
+</form>
+
+<div class="card">
+  {% if trips %}
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Vehicle</th>
+        <th>Miles</th>
+        <th>Purpose</th>
+        <th>Route</th>
+        <th class="no-print">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for trip in trips %}
+      <tr>
+        <td>{{ trip.trip_date }}</td>
+        <td>{{ trip.vehicle_label }}</td>
+        <td class="mono">{{ "%.1f"|format(trip.distance_miles) }}</td>
+        <td><span class="badge badge-{{ trip.purpose }}">{{ trip.purpose|capitalize }}</span></td>
+        <td>
+          {% if trip.start_location or trip.end_location %}
+            {{ trip.start_location or '—' }} → {{ trip.end_location or '—' }}
+          {% else %}—{% endif %}
+        </td>
+        <td class="no-print">
+          <a href="{{ url_for('trip_form', trip_id=trip.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('trip_delete', trip_id=trip.id) }}" style="display:inline" onsubmit="return confirm('Delete this trip?')">
+            <button type="submit" class="btn btn-destructive" style="padding:4px 8px;font-size:12px;margin-left:8px" aria-label="Delete trip">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <h3>No trips yet</h3>
+    <p>Log your first trip to start building your mileage history.</p>
+    <a href="{{ url_for('trip_form') }}" class="btn btn-primary">Log Your First Trip</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}IRS Report {{ year }}{% endblock %}
+{% block content %}
+<div class="page-header no-print">
+  <h1>Year-End IRS Summary</h1>
+  <div style="display:flex;gap:12px">
+    <a href="{{ url_for('reports', year=year, print=1) }}" class="btn btn-secondary" target="_blank" onclick="window.print();return false;">Print / Export</a>
+  </div>
+</div>
+
+<div class="print-only" style="margin-bottom:24px">
+  <h1 style="font-size:24px">IRS Mileage Deduction Summary</h1>
+  <p>Taxpayer: {{ taxpayer_name }} &nbsp;|&nbsp; Tax Year: {{ year }}</p>
+  <p>Generated: {{ year }} business mileage report for tax recordkeeping</p>
+</div>
+
+<form class="filters no-print" method="get" action="{{ url_for('reports') }}">
+  <label for="year" style="font-size:14px;color:var(--text-secondary)">Tax Year:</label>
+  <select id="year" name="year" class="form-control" onchange="this.form.submit()">
+    {% for y in available_years %}
+    <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+    {% endfor %}
+    {% if year not in available_years %}
+    <option value="{{ year }}" selected>{{ year }}</option>
+    {% endif %}
+  </select>
+</form>
+
+<div class="report-summary">
+  <div class="report-highlight">
+    <div class="label" style="font-size:12px;font-weight:500;color:var(--text-secondary);text-transform:uppercase;margin-bottom:8px">Total Business Miles</div>
+    <div class="amount">{{ "%.1f"|format(total_business) }} mi</div>
+  </div>
+  <div class="report-highlight">
+    <div class="label" style="font-size:12px;font-weight:500;color:var(--text-secondary);text-transform:uppercase;margin-bottom:8px">IRS Standard Rate ({{ year }})</div>
+    <div class="amount">${{ "%.3f"|format(rate) }}/mi</div>
+  </div>
+  <div class="report-highlight">
+    <div class="label" style="font-size:12px;font-weight:500;color:var(--text-secondary);text-transform:uppercase;margin-bottom:8px">Estimated Deduction</div>
+    <div class="amount">${{ "%.2f"|format(estimated_deduction) }}</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Breakdown by Vehicle</h2>
+  {% if by_vehicle %}
+  <table>
+    <thead>
+      <tr>
+        <th>Vehicle</th>
+        <th>Details</th>
+        <th>Business Miles</th>
+        <th>Est. Deduction</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in by_vehicle %}
+      {% if row.business_miles > 0 %}
+      <tr>
+        <td>{{ row.label }}</td>
+        <td>{{ row.vehicle_year or '' }} {{ row.make or '' }} {{ row.model or '' }}</td>
+        <td class="mono">{{ "%.1f"|format(row.business_miles) }}</td>
+        <td class="mono">${{ "%.2f"|format(row.business_miles * rate) }}</td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <h3>No business trips in {{ year }}</h3>
+    <p>Log business-purpose trips to generate your IRS deduction summary.</p>
+    <a href="{{ url_for('trip_form') }}" class="btn btn-primary no-print">Log a Business Trip</a>
+  </div>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Monthly Subtotals (Business Miles)</h2>
+  {% if by_month %}
+  <table>
+    <thead>
+      <tr>
+        <th>Month</th>
+        <th>Business Miles</th>
+        <th>Est. Deduction</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in by_month %}
+      <tr>
+        <td>{{ month_names.get(row.month, row.month) }}</td>
+        <td class="mono">{{ "%.1f"|format(row.business_miles) }}</td>
+        <td class="mono">${{ "%.2f"|format(row.business_miles * rate) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:var(--text-secondary)">No monthly data for {{ year }}.</p>
+  {% endif %}
+</div>
+
+<div class="card" style="font-size:12px;color:var(--text-secondary)">
+  <p><strong>Disclaimer:</strong> This summary is for recordkeeping purposes. Consult a tax professional for official IRS filing guidance. Only trips marked as "business" purpose are included. Standard mileage rates are based on IRS published rates for the selected tax year.</p>
+</div>
+{% endblock %}
