@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{% if trip %}Edit Trip{% else %}Log Trip{% endif %}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>{% if trip %}Edit Trip{% else %}Log Trip{% endif %}</h1>
+</div>
+
+<div class="card" style="max-width:640px">
+  <form method="post">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="trip_date">Date <span class="required">*</span></label>
+        <input type="date" id="trip_date" name="trip_date" class="form-control" required
+          value="{{ (form.trip_date if form else (trip.trip_date if trip else '')) }}">
+      </div>
+      <div class="form-group">
+        <label for="vehicle_id">Vehicle <span class="required">*</span></label>
+        <select id="vehicle_id" name="vehicle_id" class="form-control" required>
+          {% for v in vehicles %}
+          <option value="{{ v.id }}"
+            {% if (form and form.vehicle_id == v.id|string) or (trip and trip.vehicle_id == v.id) or (not trip and not form and v.is_default) %}selected{% endif %}>
+            {{ v.label }}{% if v.is_default %} (default){% endif %}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="purpose">Purpose <span class="required">*</span></label>
+        <select id="purpose" name="purpose" class="form-control" required>
+          <option value="business" {% if (form and form.purpose == 'business') or (trip and trip.purpose == 'business') or (not trip and not form) %}selected{% endif %}>Business</option>
+          <option value="personal" {% if (form and form.purpose == 'personal') or (trip and trip.purpose == 'personal') %}selected{% endif %}>Personal</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="distance_miles">Distance (miles) <span class="required">*</span></label>
+        <input type="number" id="distance_miles" name="distance_miles" class="form-control" step="0.1" min="0.1"
+          value="{{ (form.distance_miles if form else (trip.distance_miles if trip else '')) }}">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="start_location">Start Location</label>
+        <input type="text" id="start_location" name="start_location" class="form-control"
+          value="{{ (form.start_location if form else (trip.start_location if trip else '')) }}">
+      </div>
+      <div class="form-group">
+        <label for="end_location">End Location</label>
+        <input type="text" id="end_location" name="end_location" class="form-control"
+          value="{{ (form.end_location if form else (trip.end_location if trip else '')) }}">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="odometer_start">Odometer Start</label>
+        <input type="number" id="odometer_start" name="odometer_start" class="form-control mono" step="0.1"
+          value="{{ (form.odometer_start if form else (trip.odometer_start if trip and trip.odometer_start else '')) }}">
+      </div>
+      <div class="form-group">
+        <label for="odometer_end">Odometer End</label>
+        <input type="number" id="odometer_end" name="odometer_end" class="form-control mono" step="0.1"
+          value="{{ (form.odometer_end if form else (trip.odometer_end if trip and trip.odometer_end else '')) }}">
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--text-secondary);margin-bottom:16px">If odometer readings are provided, distance is calculated automatically.</p>
+
+    <div class="form-group">
+      <label for="notes">Notes</label>
+      <textarea id="notes" name="notes" class="form-control">{{ (form.notes if form else (trip.notes if trip else '')) }}</textarea>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">{% if trip %}Save Changes{% else %}Log Trip{% endif %}</button>
+      <a href="{{ url_for('trips_list') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

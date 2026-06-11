@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Road Ledger{% endblock %} — Mileage Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  {% if g.user %}
+  <div class="app-layout">
+    <aside class="sidebar" aria-label="Main navigation">
+      <div class="logo">&#128663; Road Ledger</div>
+      <ul class="nav-links">
+        <li><a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a></li>
+        <li><a href="{{ url_for('trips_list') }}" class="{% if request.endpoint in ('trips_list', 'trip_form', 'trip_delete') %}active{% endif %}">Trips</a></li>
+        <li><a href="{{ url_for('vehicles_list') }}" class="{% if request.endpoint in ('vehicles_list', 'vehicle_form') %}active{% endif %}">Vehicles</a></li>
+        <li><a href="{{ url_for('reports') }}" class="{% if request.endpoint == 'reports' %}active{% endif %}">Reports</a></li>
+        <li><a href="{{ url_for('account') }}" class="{% if request.endpoint == 'account' %}active{% endif %}">Account</a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <div>{{ g.user.display_name }}</div>
+        <a href="{{ url_for('logout') }}">Log out</a>
+      </div>
+    </aside>
+    <main class="main-content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+    <nav class="bottom-nav" aria-label="Mobile navigation">
+      <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a>
+      <a href="{{ url_for('trips_list') }}" class="{% if request.endpoint in ('trips_list', 'trip_form') %}active{% endif %}">Trips</a>
+      <a href="{{ url_for('vehicles_list') }}" class="{% if request.endpoint in ('vehicles_list', 'vehicle_form') %}active{% endif %}">Vehicles</a>
+      <a href="{{ url_for('reports') }}" class="{% if request.endpoint == 'reports' %}active{% endif %}">Reports</a>
+    </nav>
+  </div>
+  {% else %}
+    {% block auth_content %}{% endblock %}
+  {% endif %}
+</body>
+</html>

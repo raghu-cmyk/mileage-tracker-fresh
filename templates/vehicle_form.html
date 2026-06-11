@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{% if vehicle %}Edit Vehicle{% else %}Add Vehicle{% endif %}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>{% if vehicle %}Edit Vehicle{% else %}Add Vehicle{% endif %}</h1>
+</div>
+
+<div class="card" style="max-width:480px">
+  <form method="post">
+    <div class="form-group">
+      <label for="label">Vehicle Name <span class="required">*</span></label>
+      <input type="text" id="label" name="label" class="form-control" required
+        value="{{ (form.label if form else (vehicle.label if vehicle else '')) }}">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="make">Make</label>
+        <input type="text" id="make" name="make" class="form-control"
+          value="{{ (form.make if form else (vehicle.make if vehicle else '')) }}">
+      </div>
+      <div class="form-group">
+        <label for="model">Model</label>
+        <input type="text" id="model" name="model" class="form-control"
+          value="{{ (form.model if form else (vehicle.model if vehicle else '')) }}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="year">Year</label>
+        <input type="number" id="year" name="year" class="form-control" min="1900" max="2100"
+          value="{{ (form.year if form else (vehicle.year if vehicle and vehicle.year else '')) }}">
+      </div>
+      <div class="form-group">
+        <label for="license_plate">License Plate</label>
+        <input type="text" id="license_plate" name="license_plate" class="form-control mono"
+          value="{{ (form.license_plate if form else (vehicle.license_plate if vehicle else '')) }}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>
+        <input type="checkbox" name="is_default" {% if (form and form.is_default == 'on') or (vehicle and vehicle.is_default) %}checked{% endif %}>
+        Set as default vehicle for new trips
+      </label>
+    </div>
+    {% if vehicle %}
+    <div class="form-group">
+      <label>
+        <input type="checkbox" name="is_active" {% if (form and form.is_active == 'on') or (vehicle and vehicle.is_active) or (not form and not vehicle) %}checked{% endif %}>
+        Active (uncheck to archive — historical trips are preserved)
+      </label>
+    </div>
+    {% endif %}
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">{% if vehicle %}Save Changes{% else %}Add Vehicle{% endif %}</button>
+      <a href="{{ url_for('vehicles_list') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
