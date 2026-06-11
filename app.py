@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import sqlite3
 from contextlib import closing
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from functools import wraps
 
 from flask import (
@@ -178,7 +178,7 @@ def register_routes(app: Flask):
             db = get_db()
             db.execute(
                 "INSERT INTO users (email, password_hash, display_name, created_at) VALUES (?, ?, ?, ?)",
-                (email, generate_password_hash(password), display_name, datetime.utcnow().isoformat()),
+                (email, generate_password_hash(password), display_name, datetime.now(UTC).isoformat()),
             )
             db.commit()
             user = get_user_by_email(email)
@@ -432,7 +432,7 @@ def register_routes(app: Flask):
                         odo_start_val,
                         odo_end_val,
                         notes,
-                        datetime.utcnow().isoformat(),
+                        datetime.now(UTC).isoformat(),
                     ),
                 )
                 flash("Trip logged successfully.", "success")
@@ -559,7 +559,7 @@ def register_routes(app: Flask):
                         year_val,
                         plate,
                         1 if is_default else 0,
-                        datetime.utcnow().isoformat(),
+                        datetime.now(UTC).isoformat(),
                     ),
                 )
                 flash("Vehicle added.", "success")
